@@ -39,7 +39,13 @@ export default function Cart() {
             order_items: cart, //danh sach trong gio
             total: total, // tong tien don hang
         };
-        console.log(order);
+        fetch(`http://localhost:3000/api/orders`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(order),
+        });
     };
     return (
         <main class="container mt-5 pt-5">
