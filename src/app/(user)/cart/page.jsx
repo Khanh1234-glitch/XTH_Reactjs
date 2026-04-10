@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 
 export default function Cart() {
     const [cart, setCart] = useState([]);
+    const [tableList, setTableList] = useState([]);
 
-    useEffect(() => {
+    useEffect(async () => {
         setCart(JSON.parse(localStorage.getItem("cart") || "[]"));
+        const res = await fetch(`http://localhost:3000/api/tables`);
+        const tables = await res.json();
+        setTableList(tables);
     }, []);
     const handleQuantity = (id, value) => {
         const newCart = [...cart];
@@ -25,6 +29,17 @@ export default function Cart() {
     const handleRemoveAll = () => {
         setCart([]);
         localStorage.setItem("cart", JSON.stringify(newCart));
+    };
+    const [inputTable, setInputTable] = useState(null);
+    const handleOrder = () => {
+        // Gia bo da duoc thanh toan
+        const order = {
+            name: "Ten khach", //Lay tu chuc nang dang nhap
+            table_id: inputTable, //id ban khach chon
+            order_items: cart, //danh sach trong gio
+            total: total, // tong tien don hang
+        };
+        console.log(order);
     };
     return (
         <main class="container mt-5 pt-5">
@@ -84,22 +99,23 @@ export default function Cart() {
                     <label htmlFor="tableSelect" class="form-label">
                         Chọn vị trí bàn:
                     </label>
-                    <select class="form-select" id="tableSelect">
+                    <select class="form-select" id="tableSelect" onChange={(e) => setInputTable(e.target.value)}>
                         <option selected disabled>
                             -- Vui lòng chọn bàn --
                         </option>
-                        <option value="1">Bàn số 1 (Tầng trệt)</option>
-                        <option value="2">Bàn số 2 (Tầng trệt)</option>
-                        <option value="3">Bàn số 3 (Ban công)</option>
-                        <option value="4">Bàn số 4 (Tầng 2)</option>
-                        <option value="5">Bàn số 5 (Tầng 2)</option>
+                        {tableList.map((t) => (
+                            <option key={t._id} value={t._id}>
+                                {t.name} ({t.location})
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end mt-3">
-                <h4 class="me-3">Tổng cộng: 105.000đ</h4>
-                <button class="btn btn-success">Thanh toán</button>
+                <button class="btn btn-success" onClick={handleOrder}>
+                    Thanh toán
+                </button>
             </div>
         </main>
     );
